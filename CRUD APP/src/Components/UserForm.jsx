@@ -1,10 +1,11 @@
-import React, { useState } from "react";
+// src/components/UserForm.js
+import React, { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
-import { addUser } from "../slices/UserSlice";
+import { addUser, updateUser } from "../slices/UserSlice";
 import { v4 as uuid } from "uuid";
 import { toast } from "react-toastify";
 
-const UserForm = () => {
+const UserForm = ({ editData, setEditData }) => {
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -15,138 +16,116 @@ const UserForm = () => {
 
   const dispatch = useDispatch();
 
+  useEffect(() => {
+    if (editData) {
+      setFormData(editData);
+    }
+  }, [editData]);
+
   const handleChange = (e) => {
-    const { name, value, type, files } = e.target;
-    if (type === "file") {
-      setFormData((prev) => ({
-        ...prev,
-        [name]: files[0]
-      }));
+    const { name, value, files } = e.target;
+    if (files) {
+      setFormData((prev) => ({ ...prev, image: files[0] }));
     } else {
-      setFormData((prev) => ({
-        ...prev,
-        [name]: value
-      }));
+      setFormData((prev) => ({ ...prev, [name]: value }));
     }
   };
 
-  const convertToBase64 = (file) => {
-    return new Promise((resolve, reject) => {
+  const convertToBase64 = (file) =>
+    new Promise((resolve, reject) => {
       const reader = new FileReader();
       reader.readAsDataURL(file);
       reader.onload = () => resolve(reader.result);
-      reader.onerror = (error) => reject(error);
+      reader.onerror = (err) => reject(err);
     });
-  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    // Validate required fields
-    if (
-      !formData.name ||
-      !formData.email ||
-      !formData.age ||
-      !formData.phone ||
-      !formData.image
-    ) {
+    const { name, email, age, phone, image } = formData;
+    if (!name || !email || !age || !phone) {
       toast.error("Please fill all fields");
       return;
     }
 
-    const base64Image = await convertToBase64(formData.image);
+    const img =
+      typeof image === "string" ? image : await convertToBase64(image);
 
-    const newUser = {
-      id: uuid(),
-      name: formData.name,
-      email: formData.email,
-      age: formData.age,
-      phone: formData.phone,
-      image: base64Image
+    const user = {
+      ...formData,
+      image: img,
+      id: editData ? formData.id : uuid()
     };
 
-    dispatch(addUser(newUser));
+    if (editData) {
+      dispatch(updateUser(user));
+      toast.success("User updated");
+    } else {
+      dispatch(addUser(user));
+      toast.success("User added");
+    }
 
-    setFormData({
-      name: "",
-      email: "",
-      age: "",
-      phone: "",
-      image: null
-    });
-
-    toast.success("User added successfully!");
+    setFormData({ name: "", email: "", age: "", phone: "", image: null });
+    setEditData(null);
   };
 
   return (
-    <div >
-      <h2 className="md:text-4xl text-2xl  font-bold text-green-500 ">
-        User <span className="text-black">Management</span>
-      </h2>
+    <form onSubmit={handleSubmit} className="grid grid-cols-2 gap-4 p-4 md:grid-cols-2">
+      <input
+        name="name"
+        value={formData.name}
+        onChange={handleChange}
+        placeholder="Name"
+        className="border p-2 rounded"
+      />
+      <input
+        name="email"
+        value={formData.email}
+        onChange={handleChange}
+        placeholder="Email"
+        className="border p-2 rounded"
+      />
+      <input
+        name="age"
+        type="number"
+        value={formData.age}
+        onChange={handleChange}
+        placeholder="Age"
+        className="border p-2 rounded"
+      />
+      <input
+        name="phone"
+        type="number"
+        value={formData.phone}
+        onChange={handleChange}
+        placeholder="Phone"
+        className="border p-2 rounded"
+      />
+      <input
+        type="file"
+        name="image"
+        onChange={handleChange}
+        className="md:col-span-2"
+      />
 
-      <form
-        className="grid grid-cols-2 md:grid-cols-2 gap-1"
-        onSubmit={handleSubmit}
+      {formData.image && (
+        <img
+          src={
+            typeof formData.image === "string"
+              ? formData.image
+              : URL.createObjectURL(formData.image)
+          }
+          alt="preview"
+          className="w-24 h-24 object-cover rounded-full border"
+        />
+      )}
+
+      <button
+        type="submit"
+        className="bg-blue-500 text-white py-2 px-4 rounded"
       >
-        <input
-          type="text"
-          placeholder="Name"
-          name="name"
-          value={formData.name}
-          onChange={handleChange}
-          className="border px-4 py-2 rounded"
-        />
-        <input
-          type="email"
-          placeholder="Email"
-          name="email"
-          value={formData.email}
-          onChange={handleChange}
-          className="border px-4 py-2 rounded"
-        />
-        <input
-          type="number"
-          placeholder="Age"
-          name="age"
-          value={formData.age}
-          onChange={handleChange}
-          className="border px-4 py-2 rounded"
-        />
-        <input
-          type="number"
-          placeholder="Phone Number"
-          name="phone"
-          value={formData.phone}
-          onChange={handleChange}
-          className="border px-4 py-2 rounded"
-        />
-        <input
-          type="file"
-          name="image"
-          accept="image/*"
-          multiple
-          onChange={handleChange}
-          className="border px-4 py-2 rounded"
-        />
-
-        {formData.image && (
-          <div className="md:col-span-2">
-            <img
-              src={URL.createObjectURL(formData.image)}
-              alt="Preview"
-              className="w-32 h-32 object-cover rounded-full border"
-            />
-          </div>
-        )}
-
-        <button
-          type="submit"
-        
-        >
-          Add
-        </button>
-      </form>
-    </div>
+        {editData ? "Update" : "Add"} User
+      </button>
+    </form>
   );
 };
 

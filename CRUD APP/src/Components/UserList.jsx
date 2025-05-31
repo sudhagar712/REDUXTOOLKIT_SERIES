@@ -1,62 +1,51 @@
+// src/components/UserList.js
 import React from "react";
-import { MdDelete } from "react-icons/md";
-import { FaRegEdit } from "react-icons/fa";
 import { useSelector, useDispatch } from "react-redux";
 import { deleteUser } from "../slices/UserSlice";
+import { MdDelete } from "react-icons/md";
+import { FaRegEdit } from "react-icons/fa";
 import { toast } from "react-toastify";
 
-const UserList = () => {
+const UserList = ({ setEditData }) => {
   const users = useSelector((state) => state.userInfo.list);
-  const dispatch = useDispatch()
+  const dispatch = useDispatch();
 
-
- 
+  const handleDelete = (user) => {
+    dispatch(deleteUser(user.id));
+    toast.success(`${user.name} deleted`);
+  };
 
   return (
-    <div>
-      <div className=" w-full rounded ">
-        <h1 className="text-2xl md:text-4xl font-bold  text-green-500">
-          User<span className="text-black">Collections</span>
-        </h1>
-        {users.length > 0 ? (
-          <div className="space-y-4 ">
-            {users.map((user) => (
-              <div key={user.id} className="  rounded flex items-center gap-10">
-                {user.image && (
-                  <img
-                    src={user.image}
-                    alt={user.name}
-                    className="w-25 h-25 object-cover border rounded-full"
-                  />
-                )}
-                <div className="bg-gray-300 listcontentcss ">
-                  <h2 className="text-xl text-blue-500  font-extrabold">
-                    {user.name}
-                  </h2>
-                  <p className="text-xs font-bold">Email: {user.email}</p>
-                  <p className="text-xs font-bold">Age: {user.age}</p>
-                  <p className="text-xs font-bold">Phone: {user.phone}</p>
-
-                  <div className="flex justify-between items-center gap-x-5">
-                    <FaRegEdit className="text-blue-500 text-xl" />
-                    <MdDelete
-                      onClick={() => {
-                        dispatch(deleteUser(user.id));
-                        toast.success(`${user.name} User deleted Successfully`);
-                      }}
-                      className="text-red-500 text-xl cursor-pointer"
-                    />
-                  </div>
-                </div>
-              </div>
-            ))}
+    <div className="space-y-4  shadow">
+      {users.length === 0 && <p className="text-red-500">No users found.</p>}
+      {users.map((user) => (
+        <div
+          key={user.id}
+          className="flex items-center gap-4 border p-4 rounded shadow-lg"
+        >
+          <img
+            src={user.image}
+            alt={user.name}
+            className="w-27 h-27 object-cover rounded-full"
+          />
+          <div className="flex-1 ">
+            <h2 className="text-xl font-bold">{user.name}</h2>
+            <p>Email: {user.email}</p>
+            <p>Age: {user.age}</p>
+            <p>Phone: {user.phone}</p>
+            <div className="flex items-center justify-end gap-5">
+              <FaRegEdit
+                onClick={() => setEditData(user)}
+                className="text-blue-600 cursor-pointer text-2xl"
+              />
+              <MdDelete
+                onClick={() => handleDelete(user)}
+                className="text-red-600 cursor-pointer text-2xl"
+              />
+            </div>
           </div>
-        ) : (
-          <div className="text-center text-xl font-bold   text-red-500">
-            No User
-          </div>
-        )}
-      </div>
+        </div>
+      ))}
     </div>
   );
 };
