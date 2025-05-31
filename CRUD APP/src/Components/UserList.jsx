@@ -3,6 +3,7 @@ import { MdDelete } from "react-icons/md";
 import { FaRegEdit } from "react-icons/fa";
 import { useSelector, useDispatch } from "react-redux";
 import { deleteUser } from "../slices/UserSlice";
+import { toast } from "react-toastify";
 
 const UserList = () => {
   const users = useSelector((state) => state.userInfo.list);
@@ -39,8 +40,11 @@ const UserList = () => {
                   <div className="flex justify-between items-center gap-x-5">
                     <FaRegEdit className="text-blue-500 text-xl" />
                     <MdDelete
-                      onClick={() => dispatch(deleteUser(user.id))}
-                      className="text-red-500 text-xl"
+                      onClick={() => {
+                        dispatch(deleteUser(user.id));
+                        toast.success(`${user.name} User deleted Successfully`);
+                      }}
+                      className="text-red-500 text-xl cursor-pointer"
                     />
                   </div>
                 </div>
@@ -48,7 +52,7 @@ const UserList = () => {
             ))}
           </div>
         ) : (
-          <div className="text-center text-3xl font-bold  text-red-500">
+          <div className="text-center text-xl font-bold   text-red-500">
             No User
           </div>
         )}
