@@ -15,8 +15,8 @@ const UserList = () => {
   return (
     <div>
       <div className=" w-full rounded ">
-        <h1 className="text-4xl font-bold  text-green-500">
-          User Data <span className="text-black">Collections</span>
+        <h1 className="text-2xl md:text-4xl font-bold  text-green-500">
+          User<span className="text-black">Collections</span>
         </h1>
         {users.length > 0 ? (
           <div className="space-y-4 ">

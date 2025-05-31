@@ -4,7 +4,7 @@ import UserList from "../Components/UserList";
 
 const Home = () => {
   return (
-    <div className="flex flex-col homecss md:flex-row  gap-20 ">
+    <div className="flex flex-col homecss md:flex-row  gap-10 ">
       {/* Left side - Form */}
       <div className="md:w-1/2  w-full p-4 rounded">
         <UserForm />

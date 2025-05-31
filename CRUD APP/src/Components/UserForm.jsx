@@ -80,7 +80,7 @@ const UserForm = () => {
 
   return (
     <div >
-      <h2 className="md:text-4xl text-4xl  font-bold text-green-500 ">
+      <h2 className="md:text-4xl text-2xl  font-bold text-green-500 ">
         User <span className="text-black">Management</span>
       </h2>
 
