@@ -10,10 +10,13 @@ const Products = () => {
   if (isLoading) return <p>Loading...</p>;
   if (error) return <p>Something went wrong!</p>;
 
-  const totalPages = Math.ceil(data.length / productsPerPage);
+  const products = data?.data || [];
+
+
+  const totalPages = Math.ceil(products.length / productsPerPage);
   const start = (currentPage - 1) * productsPerPage;
   const end = start + productsPerPage;
-  const currentProducts = data.slice(start, end);
+  const currentProducts = products.slice(start, end);
 
   const handlePageClick = (pageNum) => setCurrentPage(pageNum);
   const handlePrev = () => setCurrentPage((prev) => Math.max(prev - 1, 1));
@@ -26,31 +29,29 @@ const Products = () => {
     <div className="p-10">
       <h3 className="text-xl font-bold mb-4">My Products</h3>
 
-      {!data || data.length === 0 ? (
+      {products.length === 0 ? (
         <p>No Products</p>
       ) : (
         <>
-          <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-10 p-10">
+          <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-2 md:p-10">
             {currentProducts.map((item) => (
               <Link
-                to={`/product/${item.id}`}
-                key={item.id}
+                to={`/product/${item._id}`}
+                key={item._id}
                 className="group relative border p-2 rounded shadow overflow-hidden"
               >
                 <img
                   src={item.image}
-                  alt={item.title}
-                  className="w-full h-[400px] p-10 object-cover"
+                  alt={item.name}
+                  className="w-full h-[180px] md:h-[400px] md:p-10 object-cover"
                 />
-                {/* Overlay */}
                 <div className="absolute inset-0 bg-black bg-opacity-50 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center text-white text-center px-4">
-                  <p className="text-lg font-semibold">{item.title}</p>
+                  <p className="text-lg font-semibold">{item.name}</p>
                 </div>
               </Link>
             ))}
           </div>
 
-          {/* Pagination Controls */}
           <div className="flex flex-wrap justify-center items-center gap-2 mt-6">
             <button
               onClick={handlePrev}
